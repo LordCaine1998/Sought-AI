@@ -5666,6 +5666,11 @@ body.focus-mode #focus-exit{display:flex;}
     <button class="sb-fx-btn" onclick="playSfx('crickets',this)"><span class="sb-fx-emoji">🦗</span><span class="sb-fx-lbl">Crickets</span></button>
     <button class="sb-fx-btn" onclick="playSfx('scratch',this)"><span class="sb-fx-emoji">💿</span><span class="sb-fx-lbl">Scratch</span></button>
     <button class="sb-fx-btn" onclick="playSfx('bell',this)"><span class="sb-fx-emoji">🔕</span><span class="sb-fx-lbl">Bell</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('laser',this)"><span class="sb-fx-emoji">🛸</span><span class="sb-fx-lbl">Laser</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('siren',this)"><span class="sb-fx-emoji">🚨</span><span class="sb-fx-lbl">Siren</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('pop',this)"><span class="sb-fx-emoji">🫧</span><span class="sb-fx-lbl">Pop</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('whoosh',this)"><span class="sb-fx-emoji">💨</span><span class="sb-fx-lbl">Whoosh</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('chaching',this)"><span class="sb-fx-emoji">💰</span><span class="sb-fx-lbl">Cha-Ching</span></button>
   </div>
   <div id="sb-panel-note">Heard by both sides of the call</div>
 </div>
@@ -15630,6 +15635,66 @@ const SFX_LIB={
     g.gain.setValueAtTime(0.3,ac.currentTime);
     g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.9);
     osc.start();osc.stop(ac.currentTime+0.95);
+  },
+  laser(ac,out){
+    const osc=ac.createOscillator(),g=ac.createGain();
+    osc.type='sawtooth';osc.connect(g);g.connect(out);
+    osc.frequency.setValueAtTime(1800,ac.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120,ac.currentTime+0.25);
+    g.gain.setValueAtTime(0.25,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.28);
+    osc.start();osc.stop(ac.currentTime+0.3);
+  },
+  siren(ac,out){
+    const osc=ac.createOscillator(),g=ac.createGain();
+    osc.type='sine';osc.connect(g);g.connect(out);
+    const dur=1.3,steps=10;
+    for(let i=0;i<=steps;i++){
+      const t=ac.currentTime+(dur/steps)*i;
+      osc.frequency.linearRampToValueAtTime(i%2===0?500:900,t);
+    }
+    g.gain.setValueAtTime(0.2,ac.currentTime);
+    g.gain.setValueAtTime(0.2,ac.currentTime+dur-0.1);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+dur);
+    osc.start();osc.stop(ac.currentTime+dur+0.05);
+  },
+  pop(ac,out){
+    const osc=ac.createOscillator(),g=ac.createGain();
+    osc.type='sine';osc.connect(g);g.connect(out);
+    osc.frequency.setValueAtTime(180,ac.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(900,ac.currentTime+0.07);
+    g.gain.setValueAtTime(0.3,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.09);
+    osc.start();osc.stop(ac.currentTime+0.1);
+  },
+  whoosh(ac,out){
+    const src=ac.createBufferSource();src.buffer=_sfxNoiseBuffer(ac,0.5);
+    const bp=ac.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.2;
+    bp.frequency.setValueAtTime(200,ac.currentTime);
+    bp.frequency.linearRampToValueAtTime(4000,ac.currentTime+0.25);
+    bp.frequency.linearRampToValueAtTime(200,ac.currentTime+0.5);
+    const g=ac.createGain();
+    g.gain.setValueAtTime(0,ac.currentTime);
+    g.gain.linearRampToValueAtTime(0.28,ac.currentTime+0.15);
+    g.gain.linearRampToValueAtTime(0,ac.currentTime+0.5);
+    src.connect(bp);bp.connect(g);g.connect(out);
+    src.start();
+  },
+  chaching(ac,out){
+    [987,1318].forEach((f,i)=>{
+      const osc=ac.createOscillator(),g=ac.createGain();
+      osc.type='square';osc.frequency.value=f;
+      osc.connect(g);g.connect(out);
+      const t=ac.currentTime+i*0.09;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.14,t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.35);
+      osc.start(t);osc.stop(t+0.4);
+    });
+    const src=ac.createBufferSource();src.buffer=_sfxNoiseBuffer(ac,0.03);
+    const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=4000;
+    const g2=ac.createGain();g2.gain.value=0.2;
+    src.connect(hp);hp.connect(g2);g2.connect(out);
+    src.start(ac.currentTime);
   }
 };
 
