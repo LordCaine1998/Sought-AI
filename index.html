@@ -3241,6 +3241,7 @@ textarea{border:none;background:none;resize:none;outline:none;}
   #ic{border-radius:12px;}
   .chip{font-size:11.5px;padding:7px 12px;}
   #wtitle{font-size:24px;}
+  #sb-grid{grid-template-columns:repeat(4,1fr);}
 }
 
 /* ── Hamburger always visible on mobile ── */
@@ -3363,6 +3364,7 @@ textarea{border:none;background:none;resize:none;outline:none;}
 .call-btn-end{background:#e32636;}
 .call-btn-mute{background:rgba(255,255,255,.12);}
 .call-btn-speaker{background:rgba(255,255,255,.12);}
+.call-btn-sounds{background:rgba(255,255,255,.12);}
 .call-btn-label{font-size:11px;color:rgba(255,255,255,.45);text-align:center;margin-top:6px;}
 .call-action-wrap{display:flex;flex-direction:column;align-items:center;}
 
@@ -3399,7 +3401,7 @@ textarea{border:none;background:none;resize:none;outline:none;}
 /* ━━━━━━━━━━  VIDEO CALL OVERLAY  ━━━━━━━━━━ */
 #vcall-overlay{
   position:fixed;inset:0;z-index:650;
-  background:#000;
+  background:linear-gradient(160deg,#1a1020,#0f1830,#0a1520);
   display:none;flex-direction:column;
 }
 #vcall-overlay.show{display:flex;}
@@ -3415,12 +3417,13 @@ textarea{border:none;background:none;resize:none;outline:none;}
   display:flex;align-items:center;justify-content:center;
 }
 #vcall-self{
-  position:absolute;bottom:100px;right:20px;
+  position:absolute;bottom:128px;right:20px;
   width:110px;height:150px;border-radius:16px;
   background:linear-gradient(135deg,#2a2a3a,#1a1a2a);
   border:2px solid rgba(255,255,255,.12);
   display:flex;align-items:center;justify-content:center;
   font-size:13px;color:rgba(255,255,255,.4);
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
 }
 #vcall-name-bar{
   position:absolute;top:20px;left:50%;transform:translateX(-50%);
@@ -3430,9 +3433,15 @@ textarea{border:none;background:none;resize:none;outline:none;}
 }
 #vcall-name-txt{font-size:14px;color:#fff;font-weight:600;}
 #vcall-timer-txt{font-size:13px;color:rgba(255,255,255,.5);}
+/* Floating control pill instead of an edge-to-edge black bar */
 #vcall-btns{
-  padding:24px 0 36px;background:rgba(0,0,0,.6);backdrop-filter:blur(20px);
-  display:flex;align-items:center;justify-content:center;gap:20px;flex-shrink:0;
+  position:absolute;left:50%;bottom:max(22px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  padding:14px 20px;border-radius:30px;
+  background:linear-gradient(165deg,rgba(42,31,74,.82),rgba(15,21,32,.82));
+  backdrop-filter:blur(22px);
+  box-shadow:0 14px 40px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.09);
+  display:flex;align-items:center;justify-content:center;gap:16px;
 }
 .vcall-btn{
   width:58px;height:58px;border-radius:50%;
@@ -3441,9 +3450,46 @@ textarea{border:none;background:none;resize:none;outline:none;}
 }
 .vcall-btn:hover{transform:scale(1.08);filter:brightness(1.15);}
 .vcall-btn-end{background:#e32636;}
-.vcall-btn-mute,.vcall-btn-cam,.vcall-btn-flip{background:rgba(255,255,255,.14);}
+.vcall-btn-mute,.vcall-btn-cam,.vcall-btn-flip,.vcall-btn-sounds{background:rgba(255,255,255,.14);}
 .vcall-btn-label{font-size:10px;color:rgba(255,255,255,.4);text-align:center;margin-top:5px;}
 .vcall-btn-wrap{display:flex;flex-direction:column;align-items:center;}
+
+/* Connect pulse — brief glow when the call media actually connects */
+@keyframes callConnectFlash{0%{box-shadow:0 0 0 0 rgba(124,92,191,0);}35%{box-shadow:0 0 0 14px rgba(124,92,191,.28);}100%{box-shadow:0 0 0 0 rgba(124,92,191,0);}}
+.call-connect-flash{animation:callConnectFlash .9s ease-out;}
+
+/* ━━━━━━━━━━  SOUNDBOARD  ━━━━━━━━━━ */
+#soundboard-panel{
+  position:fixed;left:50%;bottom:0;z-index:900;
+  width:min(380px,92vw);
+  transform:translateX(-50%) translateY(110%);
+  background:linear-gradient(165deg,#2a1f4a,#1a1020 60%,#0f1520);
+  border-radius:22px 22px 0 0;
+  box-shadow:0 -10px 50px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08);
+  padding:18px 18px max(18px,env(safe-area-inset-bottom));
+  transition:transform .32s cubic-bezier(.34,1.1,.64,1);
+}
+#soundboard-panel.show{transform:translateX(-50%) translateY(0);}
+#sb-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+#sb-panel-head span{font-family:var(--se);font-size:16px;color:#fff;letter-spacing:-.01em;}
+#sb-panel-close{width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s,filter .15s;}
+#sb-panel-close:hover{transform:scale(1.08);filter:brightness(1.15);}
+#sb-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.sb-fx-btn{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:10px 4px 8px;cursor:pointer;
+  transition:transform .12s,background .15s;
+}
+.sb-fx-btn:hover{background:rgba(255,255,255,.14);}
+.sb-fx-btn:active{transform:scale(.93);}
+.sb-fx-emoji{font-size:22px;line-height:1;}
+.sb-fx-lbl{font-size:9.5px;color:rgba(255,255,255,.6);text-align:center;line-height:1.2;}
+#sb-panel-note{margin-top:12px;font-size:10.5px;color:rgba(255,255,255,.4);text-align:center;}
+@keyframes sbPop{0%{transform:scale(1);}40%{transform:scale(1.18);}100%{transform:scale(1);}}
+.sb-fx-btn.sb-pop{animation:sbPop .5s ease;background:rgba(124,92,191,.35);}
+@keyframes sbFloat{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-20px) scale(1.4);opacity:0;}}
+.sb-fx-btn.sb-pop .sb-fx-emoji{animation:sbFloat .6s ease-out;}
 
 /* mobile overrides above */
 
@@ -5556,6 +5602,12 @@ body.focus-mode #focus-exit{display:flex;}
         </button>
         <div class="call-btn-label">Speaker</div>
       </div>
+      <div class="call-action-wrap">
+        <button class="call-action-btn call-btn-sounds" onclick="toggleSoundboard()" title="Soundboard">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </button>
+        <div class="call-btn-label">Sounds</div>
+      </div>
     </div>
   </div>
 </div>
@@ -5590,7 +5642,32 @@ body.focus-mode #focus-exit{display:flex;}
       <button class="vcall-btn vcall-btn-flip" onclick="flipCamera()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.44"/></svg></button>
       <div class="vcall-btn-label">Flip</div>
     </div>
+    <div class="vcall-btn-wrap">
+      <button class="vcall-btn vcall-btn-sounds" onclick="toggleSoundboard()" title="Soundboard"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
+      <div class="vcall-btn-label">Sounds</div>
+    </div>
   </div>
+</div>
+
+<!-- ══════════════  SOUNDBOARD  ══════════════ -->
+<div id="soundboard-panel">
+  <div id="sb-panel-head">
+    <span>🎚️ Soundboard</span>
+    <button id="sb-panel-close" onclick="toggleSoundboard()" title="Close">✕</button>
+  </div>
+  <div id="sb-grid">
+    <button class="sb-fx-btn" onclick="playSfx('airhorn',this)"><span class="sb-fx-emoji">📯</span><span class="sb-fx-lbl">Airhorn</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('applause',this)"><span class="sb-fx-emoji">👏</span><span class="sb-fx-lbl">Applause</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('drumroll',this)"><span class="sb-fx-emoji">🥁</span><span class="sb-fx-lbl">Drumroll</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('rimshot',this)"><span class="sb-fx-emoji">🔔</span><span class="sb-fx-lbl">Rimshot</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('tada',this)"><span class="sb-fx-emoji">🎉</span><span class="sb-fx-lbl">Tada</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('sadtrombone',this)"><span class="sb-fx-emoji">📉</span><span class="sb-fx-lbl">Sad Trombone</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('boing',this)"><span class="sb-fx-emoji">🤸</span><span class="sb-fx-lbl">Boing</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('crickets',this)"><span class="sb-fx-emoji">🦗</span><span class="sb-fx-lbl">Crickets</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('scratch',this)"><span class="sb-fx-emoji">💿</span><span class="sb-fx-lbl">Scratch</span></button>
+    <button class="sb-fx-btn" onclick="playSfx('bell',this)"><span class="sb-fx-emoji">🔕</span><span class="sb-fx-lbl">Bell</span></button>
+  </div>
+  <div id="sb-panel-note">Heard by both sides of the call</div>
 </div>
 
 <!-- ══════════════  INCOMING CALL  ══════════════ -->
@@ -10118,10 +10195,47 @@ async function sendMsg(override){
     // 0. AI-triggered web search pre-pass — only fire for queries that clearly need live data.
     // Blaze skips entirely. Other models skip unless the message pattern matches search-worthy queries.
     // This eliminates the extra round-trip for ~80% of conversational messages.
-    // Web search pre-pass removed — explicit /search and searchIntent fast-paths at the
-    // top of sendMsg handle web search requests. The pre-pass added a full extra Groq
-    // round-trip before every non-Blaze message, causing visible latency.
     let _searchedQuery=null;
+    const _lastUserMsgText=(()=>{
+      const last=msgs.filter(m=>m.role==='user').slice(-1)[0];
+      if(!last)return '';
+      return typeof last.content==='string'?last.content:(Array.isArray(last.content)?last.content.filter(p=>p.type==='text').map(p=>p.text).join(' '):'');
+    })();
+    // Search-worthy signals: news, current events, prices, live data, named entities + date
+    const _searchSignals=/\b(today|tonight|right now|currently|latest|recent|news|price|stock|weather|score|winner|election|2025|2026|who (is|are|won|runs|leads)|what('s| is) the (current|latest|new)|just (released|announced|happened)|live|trending|update|breaking)\b/i;
+    // /search prefix always forces web search; strip the prefix from the actual message
+    const _forceSearch=/^\/search\b/i.test(_lastUserMsgText);
+    const _needsSearch=!useVision && providerKey && !isBlaze && (_forceSearch || _searchSignals.test(_lastUserMsgText));
+    if(_needsSearch){
+      pushThinkingStep('Checking if I need to search','search');
+      try{
+        const toolCheck=await fetch(providerUrl,{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+providerKey},
+          body:JSON.stringify({model:apiModel,max_tokens:300,messages:msgs,tools:[WEB_SEARCH_TOOL],tool_choice:'auto'}),
+          signal:_signal
+        });
+        if(toolCheck.ok){
+          const td=await toolCheck.json();
+          const choice=td.choices?.[0];
+          const toolCalls=choice?.message?.tool_calls;
+          if(toolCalls && toolCalls.length){
+            const assistantMsg={role:'assistant',content:choice.message.content||null,tool_calls:toolCalls};
+            const toolMsgs=[];
+            for(const tc of toolCalls){
+              let q=null;
+              try{q=JSON.parse(tc.function?.arguments||'{}').query;}catch(e){}
+              _searchedQuery=q||_searchedQuery;
+              pushThinkingStep('Searching the web','globe',q||'');
+              const result=q?await tavilySearch(q):null;
+              toolMsgs.push({role:'tool',tool_call_id:tc.id,content:result?`[WEB SEARCH RESULTS for "${q}"]\n${result}`:'No results found.'});
+            }
+            pushThinkingStep('Reading search results','doc');
+            msgs=[...msgs,assistantMsg,...toolMsgs];
+          }
+        }
+      }catch(e){console.warn('Web search pre-pass failed',e.message);}
+    }
 
     // 1. Primary provider streaming — uses the actual selected model (Groq or Z.ai)
     if(!useVision && providerKey){
@@ -15251,6 +15365,291 @@ function _rtcCleanup(){
   const sv=document.getElementById('vcall-self-vid');
   if(sv){sv.srcObject=null;sv.style.display='none';}
   _rtcCallId=null;
+  stopRingback();stopRingtone();
+  _teardownCallAudioMix();
+  const sb=document.getElementById('soundboard-panel');
+  if(sb)sb.classList.remove('show');
+}
+
+// Higher-quality camera constraints — full HD where the device supports it,
+// with sensible minimums so it still works on weaker cameras.
+function _videoConstraints(facing){
+  return {
+    facingMode:facing,
+    width:{ideal:1920,min:1280},
+    height:{ideal:1080,min:720},
+    frameRate:{ideal:30,min:24}
+  };
+}
+
+/* ════════════════════════════════════════════
+   CALL SOUND EFFECTS, RINGTONES & SOUNDBOARD
+   All tones are synthesised with the Web Audio API (no external
+   audio files needed). Soundboard SFX are mixed into the outgoing
+   call audio so the other side hears them too; everything else
+   (clicks, ring tones, chimes) is local-only.
+════════════════════════════════════════════ */
+let _callAC=null,_callMixDest=null,_callSfxGain=null,_callMixedTrack=null;
+let _ringbackInt=null,_ringtoneInt=null;
+
+function _getCallAC(){
+  if(!_callAC)_callAC=new(window.AudioContext||window.webkitAudioContext)();
+  if(_callAC.state==='suspended')_callAC.resume().catch(()=>{});
+  return _callAC;
+}
+
+// Builds a little mixing graph: mic-in + sfx-in → one outgoing track,
+// so soundboard sounds are audible to the person on the other end.
+function _initCallAudioMix(stream){
+  try{
+    const ac=_getCallAC();
+    _callMixDest=ac.createMediaStreamDestination();
+    _callSfxGain=ac.createGain();_callSfxGain.gain.value=1;
+    _callSfxGain.connect(_callMixDest);
+    _callSfxGain.connect(ac.destination); // caller also hears their own sfx
+    const aTrack=stream.getAudioTracks()[0];
+    if(aTrack){
+      const micGain=ac.createGain();micGain.gain.value=1;
+      const micSrc=ac.createMediaStreamSource(new MediaStream([aTrack]));
+      micSrc.connect(micGain);micGain.connect(_callMixDest);
+    }
+    _callMixedTrack=_callMixDest.stream.getAudioTracks()[0];
+  }catch(e){console.warn('call audio mix init failed',e);_callMixedTrack=null;}
+}
+function _attachMixedAudioTrack(pc){
+  try{
+    if(!pc||!_callMixedTrack)return;
+    const sender=pc.getSenders().find(s=>s.track&&s.track.kind==='audio');
+    if(sender)sender.replaceTrack(_callMixedTrack).catch(()=>{});
+  }catch(e){}
+}
+function _teardownCallAudioMix(){_callMixDest=null;_callSfxGain=null;_callMixedTrack=null;}
+
+// Tiny tactile click for button presses — local only.
+function playClick(){
+  try{
+    const ac=_getCallAC();
+    const osc=ac.createOscillator(),g=ac.createGain();
+    osc.connect(g);g.connect(ac.destination);
+    osc.type='square';osc.frequency.value=1100;
+    g.gain.setValueAtTime(0.05,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.05);
+    osc.start();osc.stop(ac.currentTime+0.06);
+  }catch(e){}
+}
+
+// Ring-back heard by the caller while waiting for pickup.
+function _ringbackTone(){
+  try{
+    const ac=_getCallAC();
+    [0,.4].forEach(off=>{
+      const osc=ac.createOscillator(),g=ac.createGain();
+      osc.connect(g);g.connect(ac.destination);
+      osc.type='sine';osc.frequency.value=420;
+      g.gain.setValueAtTime(0,ac.currentTime+off);
+      g.gain.linearRampToValueAtTime(0.12,ac.currentTime+off+0.02);
+      g.gain.linearRampToValueAtTime(0,ac.currentTime+off+0.35);
+      osc.start(ac.currentTime+off);osc.stop(ac.currentTime+off+0.4);
+    });
+  }catch(e){}
+}
+function startRingback(){stopRingback();_ringbackTone();_ringbackInt=setInterval(_ringbackTone,3000);}
+function stopRingback(){clearInterval(_ringbackInt);_ringbackInt=null;}
+
+// Incoming-call ringtone + vibration.
+function _ringtoneTone(){
+  try{
+    const ac=_getCallAC();
+    [[740,0],[880,.18]].forEach(([f,off])=>{
+      const osc=ac.createOscillator(),g=ac.createGain();
+      osc.connect(g);g.connect(ac.destination);
+      osc.type='sine';osc.frequency.value=f;
+      g.gain.setValueAtTime(0,ac.currentTime+off);
+      g.gain.linearRampToValueAtTime(0.15,ac.currentTime+off+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+off+0.3);
+      osc.start(ac.currentTime+off);osc.stop(ac.currentTime+off+0.32);
+    });
+  }catch(e){}
+  if(navigator.vibrate)navigator.vibrate([300,150,300,150]);
+}
+function startRingtone(){stopRingtone();_ringtoneTone();_ringtoneInt=setInterval(_ringtoneTone,1600);}
+function stopRingtone(){clearInterval(_ringtoneInt);_ringtoneInt=null;if(navigator.vibrate)navigator.vibrate(0);}
+
+// Connect / end chimes, plus a brief visual pulse on connect.
+function playConnectChime(){
+  try{
+    const ac=_getCallAC();
+    [[523,0],[659,.1],[784,.2]].forEach(([f,off])=>{
+      const osc=ac.createOscillator(),g=ac.createGain();
+      osc.connect(g);g.connect(ac.destination);
+      osc.type='sine';osc.frequency.value=f;
+      g.gain.setValueAtTime(0,ac.currentTime+off);
+      g.gain.linearRampToValueAtTime(0.18,ac.currentTime+off+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+off+0.35);
+      osc.start(ac.currentTime+off);osc.stop(ac.currentTime+off+0.4);
+    });
+  }catch(e){}
+}
+function playEndTone(){
+  try{
+    const ac=_getCallAC();
+    [[523,0],[392,.12]].forEach(([f,off])=>{
+      const osc=ac.createOscillator(),g=ac.createGain();
+      osc.connect(g);g.connect(ac.destination);
+      osc.type='sine';osc.frequency.value=f;
+      g.gain.setValueAtTime(0,ac.currentTime+off);
+      g.gain.linearRampToValueAtTime(0.16,ac.currentTime+off+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+off+0.3);
+      osc.start(ac.currentTime+off);osc.stop(ac.currentTime+off+0.35);
+    });
+  }catch(e){}
+}
+function _flashConnect(type){
+  const el=document.getElementById(type==='video'?'vcall-name-bar':'call-card');
+  if(!el)return;
+  el.classList.add('call-connect-flash');
+  setTimeout(()=>el.classList.remove('call-connect-flash'),900);
+}
+
+// ── Soundboard SFX library — short synthesised clips, no audio files ──
+function _sfxNoiseBuffer(ac,dur){
+  const buf=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*dur)),ac.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  return buf;
+}
+function _sfxOut(){return _callSfxGain||_getCallAC().destination;}
+
+const SFX_LIB={
+  airhorn(ac,out){
+    const osc=ac.createOscillator(),g=ac.createGain();
+    osc.type='sawtooth';osc.connect(g);g.connect(out);
+    osc.frequency.setValueAtTime(150,ac.currentTime);
+    osc.frequency.linearRampToValueAtTime(155,ac.currentTime+1.1);
+    g.gain.setValueAtTime(0,ac.currentTime);
+    g.gain.linearRampToValueAtTime(0.32,ac.currentTime+0.05);
+    g.gain.setValueAtTime(0.32,ac.currentTime+1.0);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+1.3);
+    osc.start();osc.stop(ac.currentTime+1.35);
+  },
+  applause(ac,out){
+    for(let i=0;i<26;i++){
+      const t=Math.random()*1.4;
+      const src=ac.createBufferSource();src.buffer=_sfxNoiseBuffer(ac,0.05);
+      const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=2500+Math.random()*1500;
+      const g=ac.createGain();g.gain.value=0.12+Math.random()*0.1;
+      src.connect(bp);bp.connect(g);g.connect(out);
+      src.start(ac.currentTime+t);
+    }
+  },
+  drumroll(ac,out){
+    for(let i=0;i<40;i++){
+      const t=i*0.03;
+      const src=ac.createBufferSource();src.buffer=_sfxNoiseBuffer(ac,0.04);
+      const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;
+      const g=ac.createGain();g.gain.value=0.16;
+      src.connect(bp);bp.connect(g);g.connect(out);
+      src.start(ac.currentTime+t);
+    }
+  },
+  rimshot(ac,out){
+    [0,0.1].forEach(off=>{
+      const src=ac.createBufferSource();src.buffer=_sfxNoiseBuffer(ac,0.04);
+      const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1800;
+      const g=ac.createGain();g.gain.value=0.3;
+      src.connect(bp);bp.connect(g);g.connect(out);
+      src.start(ac.currentTime+off);
+    });
+    const cym=ac.createBufferSource();cym.buffer=_sfxNoiseBuffer(ac,0.5);
+    const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=6000;
+    const g2=ac.createGain();
+    g2.gain.setValueAtTime(0.18,ac.currentTime+0.2);
+    g2.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.7);
+    cym.connect(hp);hp.connect(g2);g2.connect(out);
+    cym.start(ac.currentTime+0.2);
+  },
+  tada(ac,out){
+    [523,659,784,1046].forEach((f,i)=>{
+      const osc=ac.createOscillator(),g=ac.createGain();
+      osc.type='triangle';osc.frequency.value=f;
+      osc.connect(g);g.connect(out);
+      const t=ac.currentTime+i*0.09;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.25,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.5);
+      osc.start(t);osc.stop(t+0.55);
+    });
+  },
+  sadtrombone(ac,out){
+    [466,440,415,349].forEach((f,i)=>{
+      const osc=ac.createOscillator(),g=ac.createGain();
+      osc.type='sawtooth';osc.frequency.value=f;
+      osc.connect(g);g.connect(out);
+      const t=ac.currentTime+i*0.38;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.2,t+0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.42);
+      osc.start(t);osc.stop(t+0.45);
+    });
+  },
+  boing(ac,out){
+    const osc=ac.createOscillator(),g=ac.createGain();
+    osc.type='sine';osc.connect(g);g.connect(out);
+    osc.frequency.setValueAtTime(700,ac.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(90,ac.currentTime+0.45);
+    g.gain.setValueAtTime(0.28,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.5);
+    osc.start();osc.stop(ac.currentTime+0.5);
+  },
+  crickets(ac,out){
+    [0,0.5,1.0].forEach(t=>{
+      [0,0.08].forEach(off=>{
+        const osc=ac.createOscillator(),g=ac.createGain();
+        osc.type='sine';osc.frequency.value=4200;
+        osc.connect(g);g.connect(out);
+        g.gain.setValueAtTime(0,ac.currentTime+t+off);
+        g.gain.linearRampToValueAtTime(0.07,ac.currentTime+t+off+0.01);
+        g.gain.linearRampToValueAtTime(0,ac.currentTime+t+off+0.06);
+        osc.start(ac.currentTime+t+off);osc.stop(ac.currentTime+t+off+0.07);
+      });
+    });
+  },
+  scratch(ac,out){
+    const src=ac.createBufferSource();src.buffer=_sfxNoiseBuffer(ac,0.4);
+    const bp=ac.createBiquadFilter();bp.type='bandpass';
+    bp.frequency.setValueAtTime(3000,ac.currentTime);
+    bp.frequency.exponentialRampToValueAtTime(300,ac.currentTime+0.35);
+    const g=ac.createGain();
+    g.gain.setValueAtTime(0.3,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.4);
+    src.connect(bp);bp.connect(g);g.connect(out);
+    src.start();
+  },
+  bell(ac,out){
+    const osc=ac.createOscillator(),g=ac.createGain();
+    osc.type='sine';osc.frequency.value=880;
+    osc.connect(g);g.connect(out);
+    g.gain.setValueAtTime(0.3,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+0.9);
+    osc.start();osc.stop(ac.currentTime+0.95);
+  }
+};
+
+function playSfx(name,btnEl){
+  try{
+    const ac=_getCallAC();
+    const fn=SFX_LIB[name];
+    if(fn)fn(ac,_sfxOut());
+  }catch(e){console.warn('sfx failed',e);}
+  if(btnEl){
+    btnEl.classList.remove('sb-pop');
+    requestAnimationFrame(()=>btnEl.classList.add('sb-pop'));
+    setTimeout(()=>btnEl.classList.remove('sb-pop'),650);
+  }
+}
+function toggleSoundboard(){
+  const el=document.getElementById('soundboard-panel');
+  if(!el)return;
+  el.classList.toggle('show');
+  playClick();
 }
 
 async function startCall(type){
@@ -15264,10 +15663,14 @@ async function startCall(type){
 
   // Get media
   try{
-    _rtcStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'?{facingMode:'user',width:1280,height:720}:false});
+    _rtcStream=await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},
+      video:type==='video'?_videoConstraints('user'):false
+    });
   }catch(e){
     toast('Microphone access needed — please allow and try again');return;
   }
+  _initCallAudioMix(_rtcStream);
 
   // Show UI
   if(type==='video'){
@@ -15287,10 +15690,12 @@ async function startCall(type){
     document.getElementById('call-timer').style.display='none';
     document.getElementById('call-overlay').classList.add('show');
   }
+  startRingback();
 
   // Build PeerConnection
   _rtcPc=new RTCPeerConnection(RTC_CFG);
   _rtcStream.getTracks().forEach(t=>_rtcPc.addTrack(t,_rtcStream));
+  _attachMixedAudioTrack(_rtcPc);
   _rtcPc.ontrack=e=>{_rtcOnRemoteTrack(e,type);};
   _rtcPc.onconnectionstatechange=()=>{
     if(_rtcPc&&(_rtcPc.connectionState==='failed'||_rtcPc.connectionState==='disconnected')){
@@ -15350,6 +15755,9 @@ async function startCall(type){
 }
 
 function _rtcOnRemoteTrack(e,type){
+  stopRingback();
+  playConnectChime();
+  _flashConnect(type);
   if(type==='video'){
     const rv=document.getElementById('vcall-remote-vid');
     const ra=document.getElementById('vcall-remote-av');
@@ -15381,6 +15789,7 @@ function startCallTimer(prefix){
 
 function _endCallCore(type){
   clearInterval(dmState.callTimerInterval);
+  playEndTone();
   if(_rtcCallId&&window._fbDb){
     const {doc,updateDoc}=window._fbFns;
     updateDoc(doc(window._fbDb,'calls',_rtcCallId),{status:'ended',endedBy:currentUser?.email||''}).catch(()=>{});
@@ -15417,17 +15826,20 @@ function toggleCallMute(){
   if(_rtcStream)_rtcStream.getAudioTracks().forEach(t=>t.enabled=!dmState.muted);
   const btn=document.getElementById('call-mute-btn');
   if(btn)btn.style.background=dmState.muted?'#e32636':'rgba(255,255,255,.12)';
+  playClick();
   toast(dmState.muted?'Muted':'Unmuted');
 }
 function toggleSpeaker(){
   dmState.speakerOn=!dmState.speakerOn;
   const btn=document.getElementById('call-speaker-btn');
   if(btn)btn.style.background=dmState.speakerOn?'var(--a)':'rgba(255,255,255,.12)';
+  playClick();
   toast(dmState.speakerOn?'Speaker on':'Speaker off');
 }
 function toggleVMute(){
   dmState.muted=!dmState.muted;
   if(_rtcStream)_rtcStream.getAudioTracks().forEach(t=>t.enabled=!dmState.muted);
+  playClick();
   toast(dmState.muted?'Muted':'Unmuted');
 }
 async function toggleVCam(){
@@ -15437,12 +15849,14 @@ async function toggleVCam(){
   if(btn)btn.style.background=_rtcCamOn?'rgba(255,255,255,.14)':'#e32636';
   const sv=document.getElementById('vcall-self-vid');
   if(sv)sv.style.opacity=_rtcCamOn?'1':'0';
+  playClick();
   toast(_rtcCamOn?'Camera on':'Camera off');
 }
 async function flipCamera(){
   if(!_rtcStream||!_rtcPc)return;
   _facingMode=_facingMode==='user'?'environment':'user';
-  const newStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:_facingMode},audio:false}).catch(()=>null);
+  playClick();
+  const newStream=await navigator.mediaDevices.getUserMedia({video:_videoConstraints(_facingMode),audio:false}).catch(()=>null);
   if(!newStream)return;
   const newTrack=newStream.getVideoTracks()[0];
   const sender=_rtcPc.getSenders().find(s=>s.track?.kind==='video');
@@ -15455,6 +15869,7 @@ async function flipCamera(){
 
 async function acceptIncoming(){
   document.getElementById('incoming-call').classList.remove('show');
+  stopRingtone();
   const callId=dmState._incomingCallId;
   const callData=dmState._incomingCallData;
   if(!callId||!callData)return;
@@ -15462,8 +15877,12 @@ async function acceptIncoming(){
            {name:callData.callerName||'Caller',color:'var(--a)',id:'tmp'};
 
   try{
-    _rtcStream=await navigator.mediaDevices.getUserMedia({audio:true,video:callData.type==='video'?{facingMode:'user'}:false});
+    _rtcStream=await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},
+      video:callData.type==='video'?_videoConstraints('user'):false
+    });
   }catch(e){toast('Mic access needed to accept call');return;}
+  _initCallAudioMix(_rtcStream);
 
   const initials=c.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
   dmState.callTarget=c;dmState.callSeconds=0;dmState.muted=false;
@@ -15489,6 +15908,7 @@ async function acceptIncoming(){
   _rtcPc=new RTCPeerConnection(RTC_CFG);
   _rtcCallId=callId;
   _rtcStream.getTracks().forEach(t=>_rtcPc.addTrack(t,_rtcStream));
+  _attachMixedAudioTrack(_rtcPc);
   _rtcPc.ontrack=e=>{_rtcOnRemoteTrack(e,callData.type);};
   _rtcPc.onconnectionstatechange=()=>{
     if(_rtcPc&&(_rtcPc.connectionState==='failed'||_rtcPc.connectionState==='disconnected'))
@@ -15526,6 +15946,7 @@ async function acceptIncoming(){
 
 function declineIncoming(){
   document.getElementById('incoming-call').classList.remove('show');
+  stopRingtone();
   if(dmState._incomingCallId&&window._fbDb){
     const {doc,updateDoc}=window._fbFns;
     updateDoc(doc(window._fbDb,'calls',dmState._incomingCallId),{status:'declined'}).catch(()=>{});
@@ -15564,6 +15985,7 @@ function listenForIncomingCalls(){
           avEl.style.background=c?.color||'var(--a)';
         }
         el.classList.add('show');
+        startRingtone();
         // Auto-dismiss if caller ends
         setTimeout(()=>{
           if(el.classList.contains('show')&&dmState._incomingCallId===callId)
