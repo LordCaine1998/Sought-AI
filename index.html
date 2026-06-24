@@ -10118,47 +10118,10 @@ async function sendMsg(override){
     // 0. AI-triggered web search pre-pass — only fire for queries that clearly need live data.
     // Blaze skips entirely. Other models skip unless the message pattern matches search-worthy queries.
     // This eliminates the extra round-trip for ~80% of conversational messages.
+    // Web search pre-pass removed — explicit /search and searchIntent fast-paths at the
+    // top of sendMsg handle web search requests. The pre-pass added a full extra Groq
+    // round-trip before every non-Blaze message, causing visible latency.
     let _searchedQuery=null;
-    const _lastUserMsgText=(()=>{
-      const last=msgs.filter(m=>m.role==='user').slice(-1)[0];
-      if(!last)return '';
-      return typeof last.content==='string'?last.content:(Array.isArray(last.content)?last.content.filter(p=>p.type==='text').map(p=>p.text).join(' '):'');
-    })();
-    // Search-worthy signals: news, current events, prices, live data, named entities + date
-    const _searchSignals=/\b(today|tonight|right now|currently|latest|recent|news|price|stock|weather|score|winner|election|2025|2026|who (is|are|won|runs|leads)|what('s| is) the (current|latest|new)|just (released|announced|happened)|live|trending|update|breaking)\b/i;
-    // /search prefix always forces web search; strip the prefix from the actual message
-    const _forceSearch=/^\/search\b/i.test(_lastUserMsgText);
-    const _needsSearch=!useVision && providerKey && !isBlaze && (_forceSearch || _searchSignals.test(_lastUserMsgText));
-    if(_needsSearch){
-      pushThinkingStep('Checking if I need to search','search');
-      try{
-        const toolCheck=await fetch(providerUrl,{
-          method:'POST',
-          headers:{'Content-Type':'application/json','Authorization':'Bearer '+providerKey},
-          body:JSON.stringify({model:apiModel,max_tokens:300,messages:msgs,tools:[WEB_SEARCH_TOOL],tool_choice:'auto'}),
-          signal:_signal
-        });
-        if(toolCheck.ok){
-          const td=await toolCheck.json();
-          const choice=td.choices?.[0];
-          const toolCalls=choice?.message?.tool_calls;
-          if(toolCalls && toolCalls.length){
-            const assistantMsg={role:'assistant',content:choice.message.content||null,tool_calls:toolCalls};
-            const toolMsgs=[];
-            for(const tc of toolCalls){
-              let q=null;
-              try{q=JSON.parse(tc.function?.arguments||'{}').query;}catch(e){}
-              _searchedQuery=q||_searchedQuery;
-              pushThinkingStep('Searching the web','globe',q||'');
-              const result=q?await tavilySearch(q):null;
-              toolMsgs.push({role:'tool',tool_call_id:tc.id,content:result?`[WEB SEARCH RESULTS for "${q}"]\n${result}`:'No results found.'});
-            }
-            pushThinkingStep('Reading search results','doc');
-            msgs=[...msgs,assistantMsg,...toolMsgs];
-          }
-        }
-      }catch(e){console.warn('Web search pre-pass failed',e.message);}
-    }
 
     // 1. Primary provider streaming — uses the actual selected model (Groq or Z.ai)
     if(!useVision && providerKey){
@@ -14130,6 +14093,9 @@ async function initDM(){
   loadFriendsData();
   // Mark self as online
   setUserStatus(currentUser?.status||'online');
+  // Start listening for incoming calls
+  if(window._fbReady) listenForIncomingCalls();
+  else window.addEventListener('firebaseReady', listenForIncomingCalls, {once:true});
 }
 
 const DM_EMOJIS = ['😊','😂','❤️','🔥','👍','😍','🎉','😭','🤔','😎','👋','✨','💯','😅','🙌','💀','😢','🥳','😤','🫡'];
